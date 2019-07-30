@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import json
+import cv2
+
 
 def get_all_file_path(root_path):
     all_file_path = list()
@@ -51,7 +53,16 @@ def parse_txt(txt_path):
 
         section_dict[str(int(action))].append(section)
 
+    for i in range(8):
+        section_dict[str(i + 1)] = np.array(section_dict[str(i + 1)])
+
     return section_dict
+
+
+def get_video_info(video_path):
+    cap = cv2.VideoCapture(video_path)
+    total_frame_num = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+    return total_frame_num
 
 
 def parse_json():
@@ -59,19 +70,29 @@ def parse_json():
     json_dict = json.load(open("config.json", "r"))
     return json_dict
 
+
 if __name__ == "__main__":
+    txt_root_path = R""
+    video_root_path = R""
 
-    # txt_root_path = R""
-    # video_root_path = R""
-    #
-    # txt_path_list = get_all_file_path(txt_root_path)
-    # video_path_list = get_all_file_path(video_root_path)
-    #
-    # all_name_list = get_names_from_path_list(txt_path_list)
-    #
-    # txt_map = make_name_to_path_map(all_name_list, txt_path_list)
-    # video_map = make_name_to_path_map(all_name_list, video_path_list)
+    txt_path_list = get_all_file_path(txt_root_path)
+    video_path_list = get_all_file_path(video_root_path)
 
-    # tmp = parse_txt("output_txt/52001301F2QC1S.txt")
-    # for i in tmp.keys():
-    #     print(tmp[i])
+    all_name_list = get_names_from_path_list(txt_path_list)
+
+    txt_map = make_name_to_path_map(all_name_list, txt_path_list)
+    video_map = make_name_to_path_map(all_name_list, video_path_list)
+
+    for name in all_name_list:
+        txt_path = txt_map[name]
+        video_path = video_map[name]
+
+        section_dict = parse_txt(txt_path)
+        frame_num = get_video_info(video_path)
+
+        for i in range(8):
+            section_dict[str(i + 1)] = (section_dict[str(i + 1)] * frame_num).astype(int)
+
+
+
+
