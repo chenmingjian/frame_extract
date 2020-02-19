@@ -1,1 +1,5 @@
 output_txt
+all
+.vscode
+*.tar.gz
+_output_img
